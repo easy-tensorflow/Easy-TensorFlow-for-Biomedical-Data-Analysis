@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 # Hyper-parameters
 EPOCHS = 500
 NUM_HIDDEN_UNITS = 64
+LEARNING_RATE = 0.001
+BATCH_SIZE = 32
 
 # Load the Boston Housing Prices dataset
 boston_housing = K.datasets.boston_housing
@@ -32,15 +34,14 @@ model = K.Sequential()
 model.add(K.layers.Dense(NUM_HIDDEN_UNITS, activation='relu', input_shape=(num_features,)))
 model.add(K.layers.Dense(1, activation='linear'))
 model.compile(loss='mse',
-              optimizer=tf.train.RMSPropOptimizer(learning_rate=0.001),
+              optimizer=tf.train.AdamOptimizer(learning_rate=LEARNING_RATE),
               metrics=['mae'])
 model.summary()
 
 # The patience parameter is the amount of epochs to check for improvement
 early_stop = K.callbacks.EarlyStopping(monitor='val_loss', patience=20)
-history = model.fit(X_train, y_train, epochs=EPOCHS,
-                    validation_split=0.2, verbose=1,
-                    callbacks=[early_stop])
+history = model.fit(X_train, y_train, epochs=EPOCHS, batch_size=BATCH_SIZE,
+                    validation_split=0.2, verbose=1, callbacks=[early_stop])
 
 
 plt.figure()

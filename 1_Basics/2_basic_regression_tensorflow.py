@@ -40,7 +40,7 @@ y = tf.placeholder(tf.float32, shape=[None], name='Y')
 
 
 def DenseLayer(inputs, num_units, layer_name, activation=None):
-    input_dim = inputs.shape[1]
+    input_dim = inputs.get_shape().as_list()[-1]
     with tf.variable_scope(layer_name):
         W = tf.get_variable('W',
                             dtype=tf.float32,

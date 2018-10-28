@@ -1,5 +1,9 @@
-import tensorflow as tf
-from tensorflow import keras as K
+from keras.models import Sequential
+from keras.datasets import boston_housing
+from keras.layers import Dense
+from keras.optimizers import Adam
+from keras.callbacks import EarlyStopping
+
 import numpy as np
 import matplotlib.pyplot as plt
 from utils import randomize
@@ -11,15 +15,14 @@ LEARNING_RATE = 0.001
 BATCH_SIZE = 32
 
 # Load the Boston Housing Prices dataset
-boston_housing = K.datasets.boston_housing
 (X_train, y_train), (X_test, y_test) = boston_housing.load_data()
 num_features = X_train.shape[1]
 
 # Shuffle the training set
 X_train, y_train = randomize(X_train, y_train)
 
-print("Training set: {}".format(X_train.shape))   # 404 examples, 13 features
-print("Testing set:  {}".format(X_test.shape))    # 102 examples, 13 features
+print("Training set: {}".format(X_train.shape))  # 404 examples, 13 features
+print("Testing set:  {}".format(X_test.shape))  # 102 examples, 13 features
 
 # Normalize features
 # Test data is *not* used when calculating the mean and std
@@ -29,15 +32,15 @@ X_train = (X_train - mean) / std
 X_test = (X_test - mean) / std
 
 # Build the model
-model = K.Sequential()
-model.add(K.layers.Dense(NUM_HIDDEN_UNITS, activation='relu', input_shape=(num_features,)))
-model.add(K.layers.Dense(1, activation='linear'))
+model = Sequential()
+model.add(Dense(NUM_HIDDEN_UNITS, activation='relu', input_shape=(num_features,)))
+model.add(Dense(1, activation='linear'))
 model.compile(loss='mse',
-              optimizer=tf.train.AdamOptimizer(learning_rate=LEARNING_RATE),
+              optimizer=Adam(lr=LEARNING_RATE),
               metrics=['mae'])
 model.summary()
 # The patience parameter is the amount of epochs to check for improvement
-early_stop = K.callbacks.EarlyStopping(monitor='val_loss', patience=20)
+early_stop = EarlyStopping(monitor='val_loss', patience=20)
 
 # Start Training
 history = model.fit(X_train, y_train, epochs=EPOCHS, batch_size=BATCH_SIZE,
@@ -51,7 +54,6 @@ plt.plot(history.epoch, np.array(history.history['mean_absolute_error']), label=
 plt.plot(history.epoch, np.array(history.history['val_mean_absolute_error']), label='Val loss')
 plt.legend()
 plt.ylim([0, 5])
-
 
 [loss, mae] = model.evaluate(X_test, y_test, verbose=0)
 print("\n Testing set Mean Abs Error: ${:7.2f}".format(mae * 1000))

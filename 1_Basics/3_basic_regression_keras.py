@@ -2,6 +2,7 @@ import tensorflow as tf
 from tensorflow import keras as K
 import numpy as np
 import matplotlib.pyplot as plt
+from utils import randomize
 
 # Hyper-parameters
 EPOCHS = 500
@@ -15,12 +16,10 @@ boston_housing = K.datasets.boston_housing
 num_features = X_train.shape[1]
 
 # Shuffle the training set
-order = np.argsort(np.random.random(y_train.shape))
-X_train = X_train[order]
-y_train = y_train[order]
+X_train, y_train = randomize(X_train, y_train)
 
 print("Training set: {}".format(X_train.shape))   # 404 examples, 13 features
-print("Testing set:  {}".format(y_train.shape))   # 102 examples, 13 features
+print("Testing set:  {}".format(X_test.shape))    # 102 examples, 13 features
 
 # Normalize features
 # Test data is *not* used when calculating the mean and std
@@ -37,13 +36,14 @@ model.compile(loss='mse',
               optimizer=tf.train.AdamOptimizer(learning_rate=LEARNING_RATE),
               metrics=['mae'])
 model.summary()
-
 # The patience parameter is the amount of epochs to check for improvement
 early_stop = K.callbacks.EarlyStopping(monitor='val_loss', patience=20)
+
+# Start Training
 history = model.fit(X_train, y_train, epochs=EPOCHS, batch_size=BATCH_SIZE,
                     validation_split=0.2, verbose=1, callbacks=[early_stop])
 
-
+# Let's plot the error values
 plt.figure()
 plt.xlabel('Epoch')
 plt.ylabel('Mean Abs Error [1000$]')

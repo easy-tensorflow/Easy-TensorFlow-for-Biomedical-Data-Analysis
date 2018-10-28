@@ -1,6 +1,7 @@
 import numpy as np
 import h5py
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import OneHotEncoder
 
 
 def randomize(x, y):
@@ -19,18 +20,27 @@ def get_next_batch(x, y, start, end):
 
 def load_data():
     h5f = h5py.File('LUNA_2d.h5', 'r')
-    X = h5f['x'][:]
+    x = h5f['x'][:][:, :, :, np.newaxis]
     y = h5f['y'][:]
     h5f.close()
 
+    # Shuffle the training set
+    x, y = randomize(x, y)
+
+    # one-hot encode the labels
+    onehot_encoder = OneHotEncoder(sparse=False)
+    y = onehot_encoder.fit_transform(np.expand_dims(y, axis=1))
+
     # split train and test data
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.2)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=.2)
+
+    print("Training set: {}".format(x_train.shape))  # 1600 samples
+    print("Testing set:  {}".format(x_test.shape))   # 400 samples
 
     # Normalize the input data
-    m = np.mean(X_train)
-    s = np.std(X_train)
-    X_train = (X_train - m) / s
-    X_test = (X_test - m) / s
-
-    return X_train, X_test, y_train, y_test
+    m = np.mean(x_train)
+    s = np.std(x_train)
+    x_train = (x_train - m) / s
+    x_test = (x_test - m) / s
+    return x_train, x_test, y_train, y_test
 

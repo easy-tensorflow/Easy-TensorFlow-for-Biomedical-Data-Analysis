@@ -1,6 +1,7 @@
 pandas
 xlrd
 sklearn
-tensorflow
 numpy
 h5py
+tensorflow==1.7.0
+keras

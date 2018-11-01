@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import itertools
 
 
-def randomize(x: object, y: object) -> object:
+def randomize(x, y):
     """ Randomizes the order of data samples and their corresponding labels"""
     permutation = np.random.permutation(y.shape[0])
     shuffled_x = x[permutation, :]

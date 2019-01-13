@@ -13,12 +13,13 @@ from sklearn.preprocessing import OneHotEncoder
 
 from utils import *
 
-MODE = 'test'
+# HYPER-PARAMETERS
 RUN_NAME = 'run01'
 SAVE_DIR = 'models'
 NUM_HIDDEN_UNITS = [32, 3, 32]
 EPOCHS = 100
 
+# Create directory to save model
 model_dir = os.path.join(SAVE_DIR, RUN_NAME)
 if not os.path.exists(model_dir):
     os.makedirs(model_dir)
@@ -32,7 +33,6 @@ download_data(url, file_name)
 
 # Load the dataset
 X, y = load_data(file_name)
-
 
 num_samples, num_features = X.shape
 num_classes = np.max(y) + 1
@@ -48,19 +48,21 @@ X_train, X_test, y_train, y_test = train_test_split(X, y_onehot, test_size=.3)
 
 # BUILD MODEL
 model = Sequential()
-model.add(Dense(NUM_HIDDEN_UNITS[0], activation='relu', name='FC_1', input_shape=(num_features,)))
-model.add(Dense(NUM_HIDDEN_UNITS[1], activation='relu', name='FC_2'))
-model.add(Dense(NUM_HIDDEN_UNITS[2], activation='relu', name='FC_3'))
+model.add(Dense(NUM_HIDDEN_UNITS[0], activation='tanh', name='FC_1', input_shape=(num_features,)))
+model.add(Dense(NUM_HIDDEN_UNITS[1], activation='tanh', name='FC_2'))
+model.add(Dense(NUM_HIDDEN_UNITS[2], activation='tanh', name='FC_3'))
 model.add(Dense(num_features, name='output'))
 model.compile(loss=keras.losses.mse,
               optimizer=keras.optimizers.Adadelta(),
               metrics=['mae'])
 
+# CALLBACKS
 
 # TensorBoard
-# Save class labels to disk to color data points in TensorBoard accordingly
+# Save class labels for color data visualization in TensorBoard
 index = pd.read_excel(file_name, index_col=0).index
 write_metadata(os.path.join(model_dir, 'metadata.tsv'), index, y)
+
 # Create tensorboard callback
 tensorboard = TensorBoard(log_dir=model_dir,
                           embeddings_freq=1,
@@ -68,10 +70,9 @@ tensorboard = TensorBoard(log_dir=model_dir,
                           embeddings_metadata='metadata.tsv',
                           embeddings_data=X)
 
+# SESSION
 model.summary()
 model.fit(X_train, X_train, epochs=EPOCHS, batch_size=32, validation_split=0.2,
           callbacks=[tensorboard])
 
 model.save_weights(os.path.join(os.path.join(model_dir), 'wieghts.h5'))
-
-

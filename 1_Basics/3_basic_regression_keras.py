@@ -21,8 +21,8 @@ num_features = X_train.shape[1]
 # Shuffle the training set
 X_train, y_train = randomize(X_train, y_train)
 
-print("Training set: {}".format(X_train.shape))  # 404 examples, 13 features
-print("Testing set:  {}".format(X_test.shape))  # 102 examples, 13 features
+print("Train data size -> input: {}, output: {}".format(X_train.shape, y_train.shape))
+print("Test data size: -> input: {}, output: {}".format(X_test.shape, y_test.shape))
 
 # Normalize features
 # Test data is *not* used when calculating the mean and std

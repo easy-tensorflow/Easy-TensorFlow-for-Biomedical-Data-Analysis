@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 # Hyper-parameters
 EPOCHS = 500
 NUM_HIDDEN_UNITS = 64
+OUTPUT_DIMENSION = 1
 LEARNING_RATE = 0.001
 BATCH_SIZE = 32
 DISP_FREQ = 100
@@ -18,19 +19,19 @@ boston_housing = K.datasets.boston_housing
 num_features = X_train.shape[1]
 
 # Shuffle the training set
-order = np.argsort(np.random.random(y_train.shape))
-X_train = X_train[order]
-y_train = y_train[order]
+X_train, y_train = randomize(X_train, y_train)
 
-print("Training set: {}".format(X_train.shape))  # 404 examples, 13 features
-print("Testing set:  {}".format(y_train.shape))  # 102 examples, 13 features
+print("Train data size -> input: {}, output: {}".format(X_train.shape, y_train.shape))
+print("Test data size: -> input: {}, output: {}".format(X_test.shape, y_test.shape))
 
 # Normalize features
 # Test data is *not* used when calculating the mean and std
 mean = X_train.mean(axis=0)
 std = X_train.std(axis=0)
-train_data = (X_train - mean) / std
-test_data = (X_train - mean) / std
+X_train = (X_train - mean) / std
+X_test = (X_test - mean) / std
+
+# Create validation data
 X_train, X_valid, y_train, y_valid = train_test_split(X_train, y_train, test_size=0.2)
 
 # Build the model
@@ -59,16 +60,16 @@ def DenseLayer(inputs, num_units, layer_name, activation=None):
 fc1 = DenseLayer(x, NUM_HIDDEN_UNITS, 'FC1', activation=tf.nn.relu)
 
 # Output Layer
-predictions = DenseLayer(fc1, 1, 'FC2')
+predictions = DenseLayer(fc1, OUTPUT_DIMENSION, 'FC2')
 
-# Define the loss function, optimizer, and accuracy
+# Define the loss function and optimizer
 loss = tf.reduce_mean(tf.losses.mean_squared_error(labels=y, predictions=tf.squeeze(predictions)))
 optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(loss)
 
 # Creating the op for initializing all variables
 init = tf.global_variables_initializer()
 
-# Create an interactive session (to keep the session in the other cells)
+# Create a session
 with tf.Session() as sess:
     # Initialize all variables
     sess.run(init)
@@ -90,5 +91,5 @@ with tf.Session() as sess:
             # Run validation after every epoch
             feed_dict_valid = {x: X_valid, y: y_valid}
             loss_valid = sess.run(loss, feed_dict=feed_dict_valid)
-            print("Epoch: {0}, validation loss: {1:.2f}".format(epoch + 1, loss_valid))
+            print("Epoch: {0}, validation loss: {1:.2f}".format(epoch, loss_valid))
             print('------------------------------------')

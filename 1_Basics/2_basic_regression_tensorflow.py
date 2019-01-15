@@ -6,12 +6,12 @@ from utils import *
 from sklearn.model_selection import train_test_split
 
 # Hyper-parameters
-EPOCHS = 500
+EPOCHS = 100
 NUM_HIDDEN_UNITS = 64
 OUTPUT_DIMENSION = 1
 LEARNING_RATE = 0.001
 BATCH_SIZE = 32
-DISP_FREQ = 100
+DISP_FREQ = 10
 
 # Load the Boston Housing Prices dataset
 boston_housing = K.datasets.boston_housing
@@ -63,7 +63,7 @@ fc1 = DenseLayer(x, NUM_HIDDEN_UNITS, 'FC1', activation=tf.nn.relu)
 predictions = DenseLayer(fc1, OUTPUT_DIMENSION, 'FC2')
 
 # Define the loss function and optimizer
-loss = tf.reduce_mean(tf.losses.mean_squared_error(labels=y, predictions=tf.squeeze(predictions)))
+loss = tf.reduce_mean(tf.abs(y - tf.squeeze(predictions)))
 optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE).minimize(loss)
 
 # Creating the op for initializing all variables

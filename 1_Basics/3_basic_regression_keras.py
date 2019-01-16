@@ -3,7 +3,6 @@ from keras.datasets import boston_housing
 from keras.layers import Dense
 from keras.optimizers import Adam
 from keras.callbacks import EarlyStopping
-
 import numpy as np
 import matplotlib.pyplot as plt
 from utils import randomize
@@ -35,10 +34,12 @@ X_test = (X_test - mean) / std
 model = Sequential()
 model.add(Dense(NUM_HIDDEN_UNITS, activation='relu', input_shape=(num_features,)))
 model.add(Dense(1, activation='linear'))
-model.compile(loss='mse',
-              optimizer=Adam(lr=LEARNING_RATE),
-              metrics=['mae'])
+model.compile(loss='mse', optimizer=Adam(lr=LEARNING_RATE), metrics=['mae'])
+
+# Let's print a summary of the network structure
 model.summary()
+
+# Stop training when a monitored quantity has stopped improving
 # The patience parameter is the amount of epochs to check for improvement
 early_stop = EarlyStopping(monitor='val_loss', patience=20)
 
@@ -46,7 +47,7 @@ early_stop = EarlyStopping(monitor='val_loss', patience=20)
 history = model.fit(X_train, y_train, epochs=EPOCHS, batch_size=BATCH_SIZE,
                     validation_split=0.2, verbose=1, callbacks=[early_stop])
 
-# Let's plot the error values
+# Let's plot the error values through training epochs
 plt.figure()
 plt.xlabel('Epoch')
 plt.ylabel('Mean Abs Error [1000$]')
@@ -55,6 +56,7 @@ plt.plot(history.epoch, np.array(history.history['val_mean_absolute_error']), la
 plt.legend()
 plt.ylim([0, 5])
 
+# Let's check the error value on test data
 [loss, mae] = model.evaluate(X_test, y_test, verbose=0)
 print("\n Testing set Mean Abs Error: ${:7.2f}".format(mae * 1000))
 
